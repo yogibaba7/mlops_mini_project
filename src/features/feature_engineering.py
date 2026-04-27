@@ -5,6 +5,7 @@ import os
 from sklearn.feature_extraction.text import TfidfVectorizer,CountVectorizer
 import yaml
 import logging
+import pickle
 
 # configure logging
 
@@ -76,7 +77,7 @@ def tfidf(max_features: int, x_train: pd.DataFrame, y_train: pd.DataFrame, x_tes
         test_df = pd.DataFrame(x_test_tfidf.toarray())
         test_df['label'] = y_test
 
-        return train_df, test_df
+        return vectorizer,train_df, test_df
         logger.debug('tfidf successfully applied')
     except Exception as e:
         logger.error('tfidf unsuccessfull')
@@ -95,6 +96,16 @@ def save_data(path: str, train_data: pd.DataFrame, test_data: pd.DataFrame) -> N
     
     except Exception as e:
         logger.error(f"Error while saving data: {e}")
+
+# save vectorizer
+def save_vectorizer(vectorizer,save_dir:str)->None:
+    os.makedirs(save_dir,exist_ok=True)
+    save_path = os.path.join(save_dir,"vectorizer.pkl")
+    try:
+        with open(save_path,"wb") as f:
+            pickle.dump(vectorizer,f)
+    except Exception as e:
+        logger.error(f"Error while saving vectorizer : {e}")
 
 
 # main
@@ -117,7 +128,10 @@ def main():
         X_test = test_data['content'].values
         y_test = test_data['sentiment'].values
 
-        train_data, test_data = tfidf(max_features, X_train, y_train, X_test, y_test)
+        vectorizer,train_data, test_data = tfidf(max_features, X_train, y_train, X_test, y_test)
+
+        # save vectorizer
+        save_vectorizer(vectorizer,"models")
 
         file_path = os.path.join('data', 'processed')
         save_data(file_path, train_data, test_data)

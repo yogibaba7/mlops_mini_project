@@ -116,7 +116,7 @@ def main():
             mlflow.log_artifact("reports/metrics.json")
 
             # log the model with its signature
-            signature = mlflow.models.infer_signature(x_test, model(x_test))
+            signature = mlflow.models.infer_signature(x_test, model.predict(x_test))
             mlflow.sklearn.log_model(model, "model", signature=signature)
 
             
