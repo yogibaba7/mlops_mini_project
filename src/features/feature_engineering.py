@@ -104,6 +104,7 @@ def save_vectorizer(vectorizer,save_dir:str)->None:
     try:
         with open(save_path,"wb") as f:
             pickle.dump(vectorizer,f)
+            logger.debug(f"Vectorizer saved to {save_path}")
     except Exception as e:
         logger.error(f"Error while saving vectorizer : {e}")
 

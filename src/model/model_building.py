@@ -64,8 +64,11 @@ def fit_model(x_train: pd.DataFrame, y_train: pd.DataFrame, n_estimators: int) -
 
 
 # dump the model in a pickle file
-def dump_model(model: LogisticRegression, file_path: str) -> None:
+def dump_model(model: LogisticRegression, model_dir: str) -> None:
+
     try:
+        os.makedirs(model_dir,exist_ok=True)
+        file_path = os.path.join(model_dir,"model.pkl")
         logger.debug(f"dump model path {file_path}")
         # Save the model to a pickle file
         with open(file_path, 'wb') as file:
@@ -89,10 +92,10 @@ def main():
         os.makedirs('models',exist_ok=True)
         
         # model file path
-        model_path = 'models/model.pkl'
-        dump_model(model, model_path)
+        model_dir = 'models'
+        dump_model(model, model_dir)
 
-        logger.debug(f'model build and dump sucessfully on path {model_path}')
+        logger.debug(f'model build and dump sucessfully on dir {model_dir}')
 
     except Exception as e:
         logger.error(f"Unexpected error occurred: {e}")

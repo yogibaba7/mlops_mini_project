@@ -148,6 +148,9 @@ def main():
             # Log the model info file to MLflow
             mlflow.log_artifact('reports/model_info.json')
 
+            # Log vectorizer 
+            mlflow.log_artifact("models/vectorizer.pkl", artifact_path="preprocessor")
+
             
         except Exception as e:
             logger.error(f"Unexpected error occurred: {e}")

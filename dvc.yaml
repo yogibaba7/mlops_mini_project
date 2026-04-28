@@ -23,6 +23,7 @@ stages:
       - data/interim
     outs :
       - data/processed
+      - models/vectorizer.pkl
 
   model_building:
     cmd : python src/model/model_building.py
@@ -32,7 +33,7 @@ stages:
       - src/model/model_building.py
       - data/processed
     outs :
-      - models
+      - models/model.pkl
 
   model_evaluation:
     cmd : python src/model/model_evaluation.py
