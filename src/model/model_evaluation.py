@@ -8,6 +8,7 @@ import logging
 import mlflow
 import dagshub
 
+
 # setup mlflow tracking 
 mlflow.set_tracking_uri("https://dagshub.com/yogibaba7/mlops_mini_project.mlflow")
 dagshub.init(repo_owner='yogibaba7', repo_name='mlops_mini_project', mlflow=True)
@@ -87,10 +88,26 @@ def store_result(file_path: str, y_test: pd.Series, y_pred: np.ndarray, y_pred_p
     except Exception as e:
         logger.error(f"Error while storing results: {e}")
 
+# SaveModelInfo
+def SaveModelInfo(model_uri: str, model_path: str, file_path: str) -> None:
+    """Save the model run ID and path to a JSON file."""
+    try:
+        model_info = {'model_uri': model_uri, 'model_path': model_path}
+        with open(file_path, 'w') as file:
+            json.dump(model_info, file, indent=4)
+        logger.debug('Model info saved to %s', file_path)
+    except Exception as e:
+        logger.error('Error occurred while saving the model info: %s', e)
+        raise
+
+
+
+
+
 
 # main
 def main():
-    mlflow.set_experiment("dvc-pipeline")
+    mlflow.set_experiment("DVC-Pipeline")
     with mlflow.start_run() as run:
         try:
             test_path = 'data/processed/test_tfidf.csv'
@@ -115,9 +132,21 @@ def main():
 
             mlflow.log_artifact("reports/metrics.json")
 
-            # log the model with its signature
-            signature = mlflow.models.infer_signature(x_test, model.predict(x_test))
-            mlflow.sklearn.log_model(model, "model", signature=signature)
+            print("Before model logging")
+            # log the model
+            model_info = mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="model"
+            )
+
+            print(model_info.model_uri)
+            
+            
+            # Save model info
+            SaveModelInfo(model_info.model_uri,"model","reports/model_info.json")
+
+            # Log the model info file to MLflow
+            mlflow.log_artifact('reports/model_info.json')
 
             
         except Exception as e:
@@ -126,3 +155,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # print("Artifact URI:", mlflow.get_artifact_uri())
