@@ -1,21 +1,24 @@
-
 name: ci_workflow
 
 on: push
 
-job:
+jobs:
   run_dvc_pipeline:
     runs-on: ubuntu-latest
-    jobs:
+
+    steps:
       - name: code checkout
         uses: actions/checkout@v3
+
       - name: python setup
-        uses: actions/python-setup@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.11
+
       - name: install dependencies
         run: |
-          pip install requirements.txt
-      - name: run pipeline 
+          pip install -r requirements.txt
+
+      - name: run pipeline
         run: |
           dvc repro
