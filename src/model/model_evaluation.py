@@ -81,9 +81,11 @@ def predict(model: GradientBoostingClassifier, x_test: pd.DataFrame) -> tuple[np
 
 
 # scores
-def store_result(file_path: str, y_test: pd.Series, y_pred: np.ndarray, y_pred_proba: np.ndarray) -> None:
+def store_result(path_dir: str, y_test: pd.Series, y_pred: np.ndarray, y_pred_proba: np.ndarray) -> None:
 
     try:
+        os.makedirs(path_dir,exist_ok=True)
+        file_path = os.path.join(path_dir,"metrics.json")
         logger.debug('calculating results')
         accuracy = accuracy_score(y_test, y_pred)
         precision = precision_score(y_test, y_pred)
@@ -134,7 +136,7 @@ def main():
             x_test, y_test = read_test(test_path)
             model = load_model(model_path)
             y_pred, y_pred_proba = predict(model, x_test)
-            file_path = 'reports/metrics.json'
+            file_path = 'reports'
             metrics = store_result(file_path, y_test, y_pred, y_pred_proba)
             logger.debug('model evaluation successfully completed')
 
