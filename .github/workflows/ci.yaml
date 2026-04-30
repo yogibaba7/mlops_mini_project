@@ -3,7 +3,7 @@ name: ci_workflow
 
 on: push
 
-jobs:
+job:
   run_dvc_pipeline:
     runs-on: ubuntu-latest
     jobs:
