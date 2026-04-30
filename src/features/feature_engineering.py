@@ -7,15 +7,32 @@ import yaml
 import logging
 import pickle
 
-# configure logging
+# ---------------- LOGGING SETUP ---------------- #
 
-logger = logging.getLogger('feature_engineering_log')
+logger = logging.getLogger('Feature_engineering_log')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler('logging.log')
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+
+# Prevent duplicate logs
+if not logger.handlers:
+
+    # 📁 File handler (separate log file)
+    file_handler = logging.FileHandler('Feature_engineering_log.log')
+    file_handler.setLevel(logging.DEBUG)
+
+    # 💻 Console handler (terminal logs)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+
+    # Format
+    formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s'
+    )
+
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
 
 # load params
 def load_params():
@@ -112,16 +129,45 @@ def save_vectorizer(vectorizer,save_dir:str)->None:
 # main
 def main():
     try:
-        logger.debug('feature engineering process started')
+        logger.info('🚀 Feature engineering started')
+
         max_features = load_params()
+        logger.info(f"Max features: {max_features}")
+
         train_path = 'data/interim/train_preprocessed.csv'
         test_path = 'data/interim/test_preprocessed.csv'
 
         train_data, test_data = read_train_test_data(train_path, test_path)
 
+        logger.info(f"Train shape: {train_data.shape}")
+        logger.info(f"Test shape: {test_data.shape}")
 
         train_data = dropnull(train_data)
         test_data = dropnull(test_data)
+
+        logger.info(f"Train shape after dropnull: {train_data.shape}")
+        logger.info(f"Test shape after dropnull: {test_data.shape}")
+
+        # 🔥 DEBUG: check empty values
+        empty_train = train_data['content'].astype(str).str.strip().eq('').sum()
+        empty_test = test_data['content'].astype(str).str.strip().eq('').sum()
+
+        logger.info(f"Empty train rows: {empty_train}")
+        logger.info(f"Empty test rows: {empty_test}")
+
+        # 🔥 DEBUG: show sample data
+        logger.info(f"Sample train text: {train_data['content'].head(3).tolist()}")
+
+        # 🔥 Remove empty rows (CRITICAL FIX)
+        train_data = train_data[train_data['content'].astype(str).str.strip() != '']
+        test_data = test_data[test_data['content'].astype(str).str.strip() != '']
+
+        logger.info(f"Train shape after cleaning empty: {train_data.shape}")
+        logger.info(f"Test shape after cleaning empty: {test_data.shape}")
+
+        # 🔥 Safety check
+        if train_data.empty or test_data.empty:
+            raise ValueError("❌ Data became empty after preprocessing")
 
         X_train = train_data['content'].values
         y_train = train_data['sentiment'].values
@@ -129,20 +175,26 @@ def main():
         X_test = test_data['content'].values
         y_test = test_data['sentiment'].values
 
-        vectorizer,train_data, test_data = tfidf(max_features, X_train, y_train, X_test, y_test)
+        logger.info("Applying TF-IDF...")
+
+        vectorizer, train_data, test_data = tfidf(
+            max_features, X_train, y_train, X_test, y_test
+        )
+
+        # 🔥 DEBUG: check output
+        logger.info(f"Train TFIDF shape: {train_data.shape}")
+        logger.info(f"Test TFIDF shape: {test_data.shape}")
 
         # save vectorizer
-        save_vectorizer(vectorizer,"models")
+        save_vectorizer(vectorizer, "models")
 
         file_path = os.path.join('data', 'processed')
         save_data(file_path, train_data, test_data)
 
-        # Check if feature extraction was successful
-        logger.debug('feature engineering process successfully completed')
+        logger.info('✅ Feature engineering completed successfully')
 
     except Exception as e:
-        logger.error(f"Unexpected error occurred: {e}")
-
-
+        logger.error(f"❌ Feature engineering failed: {e}")
+        raise  # VERY IMPORTANT (CI me proper fail dikhane ke liye)
 if __name__ == "__main__":
     main()

@@ -7,34 +7,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # code checkout
-      - name: Checkout code
+      - name: code checkout
         uses: actions/checkout@v3
 
-      # setup python
-      - name: Setup Python
+      - name: python setup
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
-      # install dependencies
-      - name: Install dependencies
+      - name: install dependencies
         run: |
           pip install -r requirements.txt
-          pip install dvc[s3]
 
-      # AWS credentials setup
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1   # change if needed
-
-      # Pull data from DVC remote
-      - name: DVC Pull
-        run: dvc pull
-
-      # Run pipeline
-      - name: Run pipeline
-        run: dvc repro
+      - name: run pipeline
+        run: |
+          dvc repro
