@@ -137,33 +137,40 @@ def main():
 
         train_data, test_data = read_train_test(train_path, test_path)
 
+        # 🔥 DEBUG: BEFORE preprocessing
+        logger.info("🔍 BEFORE PREPROCESSING")
+        if not train_data.empty:
+            logger.info(f"Sample BEFORE: {train_data['content'].iloc[0]}")
+        else:
+            logger.warning("⚠️ Train data is empty BEFORE preprocessing")
+
         logger.debug('Applying preprocessing steps')
 
         for data in [train_data, test_data]:
 
             data['content'] = data['content'].apply(lower_case)
-            logger.debug('Lowercase done')
-
             data['content'] = data['content'].apply(remove_punctuation)
-            logger.debug('Punctuation removed')
-
             data['content'] = data['content'].apply(remove_numbers)
-            logger.debug('Numbers removed')
-
             data['content'] = data['content'].apply(removing_urls)
-            logger.debug('URLs removed')
-
             data['content'] = data['content'].apply(tokenization)
-            logger.debug('Tokenization done')
-
             data['content'] = data['content'].apply(remove_stopwords)
-            logger.debug('Stopwords removed')
-
             data['content'] = data['content'].apply(lemmatizer)
-            logger.debug('Lemmatization done')
-
             data['content'] = data['content'].apply(join_words)
-            logger.debug('Text joined')
+
+        # 🔥 DEBUG: AFTER preprocessing
+        logger.info("🔍 AFTER PREPROCESSING")
+
+        if not train_data.empty:
+            logger.info(f"Sample AFTER: {train_data['content'].iloc[0]}")
+        else:
+            logger.warning("⚠️ Train data is empty AFTER preprocessing")
+
+        # 🔥 DEBUG: empty rows count
+        empty_count = train_data['content'].astype(str).str.strip().eq('').sum()
+        logger.info(f"Empty rows after preprocessing: {empty_count}")
+
+        # 🔥 DEBUG: show few rows
+        logger.info(f"Top 3 processed rows: {train_data['content'].head(3).tolist()}")
 
         data_path = os.path.join('data', 'interim')
         save_data(data_path, train_data, test_data)
@@ -172,7 +179,6 @@ def main():
 
     except Exception as e:
         logger.error(f'Data preprocessing failed: {e}')
-
-
+        raise
 if __name__ == "__main__":
     main()
