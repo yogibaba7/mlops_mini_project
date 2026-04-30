@@ -6,10 +6,10 @@ import nltk
 import string
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer, WordNetLemmatizer
-from nltk.tokenize import word_tokenize
+
 import logging
 
-nltk.download('punkt',quiet=True)
+
 nltk.download('wordnet')
 nltk.download('stopwords')
 
@@ -93,9 +93,17 @@ def removing_urls(text: str) -> str:
 
 def tokenization(text: str) -> list:
     try:
-        return word_tokenize(text)
-    except:
-        return []
+        tokens = text.split()
+
+        # fallback (IMPORTANT)
+        if len(tokens) == 0:
+            return [text] if text else []
+
+        return tokens
+
+    except Exception as e:
+        logger.error(f"Tokenization failed: {e}")
+        return [text] if text else []
 
 
 def remove_stopwords(text: list) -> list:
