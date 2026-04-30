@@ -13,6 +13,16 @@ nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('stopwords')
 
+def debug_row(data, step_name):
+    try:
+        if not data.empty:
+            sample = data['content'].iloc[0]
+            logger.info(f"[{step_name}] ➜ {sample}")
+        else:
+            logger.warning(f"[{step_name}] ⚠️ Data empty")
+    except Exception as e:
+        logger.error(f"[{step_name}] Debug failed: {e}")
+
 # ---------------- LOGGING SETUP ---------------- #
 
 logger = logging.getLogger('data_preprocessing_log')
@@ -148,14 +158,35 @@ def main():
 
         for data in [train_data, test_data]:
 
+            logger.info("🔍 DEBUGGING PIPELINE START")
+
+            debug_row(data, "ORIGINAL")
+
             data['content'] = data['content'].apply(lower_case)
+            debug_row(data, "LOWERCASE")
+
             data['content'] = data['content'].apply(remove_punctuation)
+            debug_row(data, "REMOVE_PUNCT")
+
             data['content'] = data['content'].apply(remove_numbers)
+            debug_row(data, "REMOVE_NUM")
+
             data['content'] = data['content'].apply(removing_urls)
+            debug_row(data, "REMOVE_URL")
+
             data['content'] = data['content'].apply(tokenization)
+            debug_row(data, "TOKENIZATION")
+
             data['content'] = data['content'].apply(remove_stopwords)
+            debug_row(data, "REMOVE_STOPWORDS")
+
             data['content'] = data['content'].apply(lemmatizer)
+            debug_row(data, "LEMMATIZER")
+
             data['content'] = data['content'].apply(join_words)
+            debug_row(data, "JOIN_WORDS")
+
+            logger.info("🔍 DEBUGGING PIPELINE END")
 
         # 🔥 DEBUG: AFTER preprocessing
         logger.info("🔍 AFTER PREPROCESSING")
