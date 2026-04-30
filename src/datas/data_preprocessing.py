@@ -9,7 +9,7 @@ from nltk.stem import SnowballStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import logging
 
-nltk.download('punkt')
+nltk.download('punkt',quiet=True)
 nltk.download('wordnet')
 nltk.download('stopwords')
 
