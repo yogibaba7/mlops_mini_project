@@ -9,153 +9,169 @@ from nltk.stem import SnowballStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import logging
 
+nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('stopwords')
 
-# configure logging
+# ---------------- LOGGING SETUP ---------------- #
+
 logger = logging.getLogger('data_preprocessing_log')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler('logging.log')
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
-# read train and test data
-def read_train_test(train_path: str, test_path: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+if not logger.handlers:
+
+    # 📁 File handler
+    file_handler = logging.FileHandler('data_preprocessing.log')
+    file_handler.setLevel(logging.DEBUG)
+
+    # 💻 Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+
+    formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s'
+    )
+
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+# ---------------- FUNCTIONS ---------------- #
+
+def read_train_test(train_path: str, test_path: str):
     try:
-        logger.debug('data loading')
+        logger.debug('Loading train and test data')
         train = pd.read_csv(train_path)
         test = pd.read_csv(test_path)
+        logger.info('Train & test data loaded successfully')
         return train, test
-        logger.debug('data_ingestion successull')
-
     except Exception as e:
-        logger.error('data_ingestion unsuccessull')
-        print(f"Error while reading data: {e}")
+        logger.error(f'Reading data failed: {e}')
         return pd.DataFrame(), pd.DataFrame()
 
 
-# convert to lower case
 def lower_case(text: str) -> str:
     try:
         return text.lower()
-    except AttributeError:
+    except:
         return ""
 
 
-# remove punctuation and special characters
 def remove_punctuation(text: str) -> str:
     try:
         return re.sub(r'[^a-zA-Z0-9\s]', '', text)
-    except TypeError:
+    except:
         return ""
 
 
-# remove numbers
 def remove_numbers(text: str) -> str:
     try:
         return re.sub(r'\d+', '', text)
-    except TypeError:
+    except:
         return ""
 
 
-# remove URLs
 def removing_urls(text: str) -> str:
     try:
         url_pattern = re.compile(r'https?://\S+|www\.\S+')
         return url_pattern.sub(r'', text)
-    except TypeError:
+    except:
         return ""
 
 
-# tokenization
 def tokenization(text: str) -> list:
     try:
         return word_tokenize(text)
-    except TypeError:
+    except:
         return []
 
 
-# remove stopwords
 def remove_stopwords(text: list) -> list:
     try:
         stop_words = set(stopwords.words('english'))
         text = [word for word in text if word not in stop_words]
-        text = [word for word in text if len(word) > 2]  # remove short words
+        text = [word for word in text if len(word) > 2]
         return text
     except Exception as e:
-        print(f"Error during stopword removal: {e}")
+        logger.error(f'Stopword removal failed: {e}')
         return []
 
 
-# lemmatization
 def lemmatizer(text: list) -> list:
     try:
         lemmatizer = WordNetLemmatizer()
         return [lemmatizer.lemmatize(word) for word in text]
     except Exception as e:
-        print(f"Error during lemmatization: {e}")
+        logger.error(f'Lemmatization failed: {e}')
         return []
 
 
-# join tokens back to string
 def join_words(text: list) -> str:
     try:
         return " ".join(text).strip()
     except Exception as e:
-        print(f"Error while joining words: {e}")
+        logger.error(f'Join words failed: {e}')
         return ""
 
 
-# save data
 def save_data(path: str, train_data: pd.DataFrame, test_data: pd.DataFrame) -> None:
     try:
         os.makedirs(path, exist_ok=True)
         train_data.to_csv(os.path.join(path, 'train_preprocessed.csv'), index=False)
         test_data.to_csv(os.path.join(path, 'test_preprocessed.csv'), index=False)
-        print(f"Preprocessed data saved successfully in '{path}'")
-
+        logger.info(f"Preprocessed data saved at {path}")
     except Exception as e:
-        print(f"Error while saving data: {e}")
+        logger.error(f'Saving data failed: {e}')
 
 
-# main
+# ---------------- MAIN ---------------- #
+
 def main():
     try:
+        logger.info('Data preprocessing started')
+
         train_path = 'data/raw/train_data.csv'
         test_path = 'data/raw/test_data.csv'
+
         train_data, test_data = read_train_test(train_path, test_path)
 
-        logger.debug('applying preprocessing')
-        # Apply preprocessing
+        logger.debug('Applying preprocessing steps')
+
         for data in [train_data, test_data]:
-            
+
             data['content'] = data['content'].apply(lower_case)
-            logger.debug('data converted in lower casel')
+            logger.debug('Lowercase done')
+
             data['content'] = data['content'].apply(remove_punctuation)
-            logger.debug('punctuation removed')
+            logger.debug('Punctuation removed')
+
             data['content'] = data['content'].apply(remove_numbers)
-            logger.debug('numbers removed')
+            logger.debug('Numbers removed')
+
             data['content'] = data['content'].apply(removing_urls)
-            logger.debug('url removed')
+            logger.debug('URLs removed')
+
             data['content'] = data['content'].apply(tokenization)
-            logger.debug('tokenization completed')
+            logger.debug('Tokenization done')
+
             data['content'] = data['content'].apply(remove_stopwords)
-            logger.debug('stop words removed')
+            logger.debug('Stopwords removed')
+
             data['content'] = data['content'].apply(lemmatizer)
-            logger.debug('lemmatizer applied')
+            logger.debug('Lemmatization done')
+
             data['content'] = data['content'].apply(join_words)
-            logger.debug('words joined')
- 
-        # Save preprocessed data
+            logger.debug('Text joined')
+
         data_path = os.path.join('data', 'interim')
         save_data(data_path, train_data, test_data)
-        logger.debug(f'data successfully saved in {data_path}')
-        logger.debug('data preprocessing successfully completed')
+
+        logger.info('Data preprocessing completed successfully')
+
     except Exception as e:
-        logger.error('data preprocessing unsucessfull')
-        print(f"Unexpected error occurred: {e}")
+        logger.error(f'Data preprocessing failed: {e}')
 
 
 if __name__ == "__main__":
