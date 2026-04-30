@@ -1,4 +1,4 @@
 [core]
-    remote = localremote
-['remote "localremote"']
-    url = C:\Users\Yogesh\AppData\Local\Temp
+    remote = datastore
+['remote "datastore"']
+    url = s3://dvcmyremotebucket
