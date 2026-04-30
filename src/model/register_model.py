@@ -4,12 +4,19 @@ import mlflow
 from mlflow.tracking import MlflowClient
 import logging
 import dagshub
-import os
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
+token = os.getenv("DAGSHUB_PAT")
 
+if not token:
+    raise Exception("DAGSHUB_PAT not set")
+
+# set MLflow credentials
+os.environ["MLFLOW_TRACKING_USERNAME"] = "yogibaba7"
+os.environ["MLFLOW_TRACKING_PASSWORD"] = token
 
 dagshub_url = "https://dagshub.com"
 repo_owner = "yogibaba7"
