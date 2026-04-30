@@ -22,7 +22,7 @@ dagshub_url = "https://dagshub.com"
 repo_owner = "yogibaba7"
 repo_name = "mlops_mini_project"
 # setup mlflow tracking 
-mlflow.set_tracking_uri(f"{dagshub_url}/{repo_name}/{repo_name}.mlflow")
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 
 
 
