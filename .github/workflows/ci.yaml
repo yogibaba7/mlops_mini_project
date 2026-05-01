@@ -54,10 +54,10 @@ jobs:
           DAGSHUB_PAT: ${{secrets.DAGSHUB_PAT}}
         
         run: |
-          PYTHONPATH=.
+          export PYTHONPATH=$PWD
           pytest tests/test_api_app.py tests/test_model_loading.py tests/test_preprocessing.py
 
-          
+
           
 
 
