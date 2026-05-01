@@ -1,4 +1,4 @@
-
+# Preprocessing 
 
 # this file is for preprocessing of text
 import pandas as pd
@@ -53,9 +53,16 @@ def removing_urls(text: str) -> str:
 # tokenization
 def tokenization(text: str) -> list:
     try:
-        return word_tokenize(text)
-    except TypeError:
-        return []
+        tokens = text.split()
+
+        # fallback (IMPORTANT)
+        if len(tokens) == 0:
+            return [text] if text else []
+
+        return tokens
+
+    except Exception as e:
+        return [text] if text else []
 
 
 # remove stopwords

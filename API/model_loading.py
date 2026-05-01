@@ -1,19 +1,36 @@
 
 # this file loads model from model registry that is in production
 
-import mlflow
+import mlflow 
 import mlflow.pyfunc
 import json
-import dagshub
 import pickle
-import os
 import numpy as np
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def SetupDagshub():
+     # setup dagshub credentials for mlflow tracking
+    dagshub_token = os.getenv("DAGSHUB_PAT")
+
+    os.environ["MLFLOW_TRACKING_USERNAME"] = "yogibaba7"
+    os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+
+    # uri
+    dagshub_url = "https://dagshub.com"
+    repo_owner = "yogibaba7"
+    repo_name = "mlops_mini_project"
+    
+
+    uri = f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow"
+    mlflow.set_tracking_uri(uri)
+
 
 def LoadModel(ModelName:str,ModelStage:str)->mlflow.pyfunc:
 
-    # setup mlflow connection
-    mlflow.set_tracking_uri("https://dagshub.com/yogibaba7/mlops_mini_project.mlflow")
-    dagshub.init(repo_owner='yogibaba7', repo_name='mlops_mini_project', mlflow=True)
+    SetupDagshub()
 
     # prepare model uri
     model_uri = model_uri = f"models:/{ModelName}/{ModelStage}"
@@ -26,13 +43,9 @@ def LoadModel(ModelName:str,ModelStage:str)->mlflow.pyfunc:
 
 # load Vector
 def LoadVector():
-    from mlflow.tracking import MlflowClient
- 
-    # setup mlflow connection
-    mlflow.set_tracking_uri("https://dagshub.com/yogibaba7/mlops_mini_project.mlflow")
-    dagshub.init(repo_owner='yogibaba7', repo_name='mlops_mini_project', mlflow=True)
+    SetupDagshub()
 
-    client = MlflowClient()
+    client = mlflow.MlflowClient()
 
     model_name = "my_model"
     # latest production version
@@ -52,11 +65,7 @@ def LoadVector():
     return vectorizer
 
 
-# apply vectorization
-def Vectorization(text:str)->np.array:
-    vector = LoadVector()
-    result_array = vector.transform([text])
-    return result_array 
+
 
 
 

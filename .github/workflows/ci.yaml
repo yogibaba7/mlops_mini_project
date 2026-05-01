@@ -48,3 +48,17 @@ jobs:
 
         run: |
           python scripts/model_promotion.py
+        
+      - name: Run Api Test
+        env:
+          DAGSHUB_PAT: ${{secrets.DAGSHUB_PAT}}
+        
+        run: |
+          PYTHONPATH=.
+          pytest tests/test_api_app.py tests/test_model_loading.py tests/test_preprocessing.py
+
+          
+          
+
+
+        

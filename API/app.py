@@ -1,3 +1,4 @@
+# APP
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -5,8 +6,8 @@ from pydantic import BaseModel,computed_field,Field
 
 from typing import List,Annotated
 
-from preprocessing_utils import PreprocessText
-from model_loading import LoadModel,Vectorization
+from API.preprocessing_utils import PreprocessText
+from API.model_loading import LoadModel, LoadVector
 
 
 
@@ -17,17 +18,21 @@ class Schema(BaseModel):
     @property
     def Preprocessedsentiment(self)->str:
         return PreprocessText(self.sentiment)
-    
+
+# API 
+app = FastAPI()
+model = LoadModel("my_model","Production")
+vector = LoadVector()
+
 
 data = "i'm yogesh chouhan i have lot of thing today i'm very happy and performing outstanding"
 
 dataobj = Schema(sentiment = data)
-sentiment = dataobj.Preprocessedsentiment
-sentiment_array = Vectorization(sentiment)
+# sentiment = dataobj.Preprocessedsentiment
+# sentiment_array = vector.transform(sentiment)
 
 
-# API 
-app = FastAPI()
+
 
 @app.get("/")
 def Home():
@@ -36,8 +41,7 @@ def Home():
 @app.post("/predict")
 def Predict(UserText:Schema):
     text = UserText.Preprocessedsentiment
-    text_array = Vectorization(text)
-    model = LoadModel("my_model","Production")
+    text_array = vector.transform([text])
     prediction = model.predict(text_array)
     print(prediction)
     return JSONResponse(content={"Prediction":int(prediction[0])},status_code=200)
