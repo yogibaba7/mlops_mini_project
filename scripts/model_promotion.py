@@ -27,14 +27,15 @@ def promote_model():
     client = mlflow.MlflowClient()
 
     versions = client.get_latest_versions(model_name,stages=["Staging"])
-    latest_version = versions[0]
+    print(versions)
+    latest_version = versions[0].version
 
     # archive the current production model
     prod_version = client.get_latest_versions(model_name,stages=['Production'])
     # assuming there is only one model in production
     client.transition_model_version_stage(
         name=model_name,
-        version = prod_version[0],
+        version = prod_version[0].version,
         stage='Archived'
     )
 
