@@ -64,6 +64,7 @@ class BaseTest(unittest.TestCase):
         # 4. Load RAW Test Data (FIXED)
         # ---------------------------
         cls.test_data = pd.read_csv("data/interim/test_preprocessed.csv")
+        cls.test_data = cls.test_data.fillna("empty")
 
         cls.text_col = cls.test_data.columns[1]
         cls.target_col = cls.test_data.columns[0]
