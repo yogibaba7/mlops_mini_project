@@ -13,15 +13,6 @@ import logging
 nltk.download('wordnet')
 nltk.download('stopwords')
 
-def debug_row(data, step_name):
-    try:
-        if not data.empty:
-            sample = data['content'].iloc[0]
-            logger.info(f"[{step_name}] ➜ {sample}")
-        else:
-            logger.warning(f"[{step_name}] ⚠️ Data empty")
-    except Exception as e:
-        logger.error(f"[{step_name}] Debug failed: {e}")
 
 # ---------------- LOGGING SETUP ---------------- #
 
@@ -155,61 +146,33 @@ def main():
 
         train_data, test_data = read_train_test(train_path, test_path)
 
-        # 🔥 DEBUG: BEFORE preprocessing
-        logger.info("🔍 BEFORE PREPROCESSING")
-        if not train_data.empty:
-            logger.info(f"Sample BEFORE: {train_data['content'].iloc[0]}")
-        else:
-            logger.warning("⚠️ Train data is empty BEFORE preprocessing")
-
-        logger.debug('Applying preprocessing steps')
 
         for data in [train_data, test_data]:
 
-            logger.info("🔍 DEBUGGING PIPELINE START")
-
-            debug_row(data, "ORIGINAL")
 
             data['content'] = data['content'].apply(lower_case)
-            debug_row(data, "LOWERCASE")
+            
 
             data['content'] = data['content'].apply(remove_punctuation)
-            debug_row(data, "REMOVE_PUNCT")
+            
 
             data['content'] = data['content'].apply(remove_numbers)
-            debug_row(data, "REMOVE_NUM")
+            
 
             data['content'] = data['content'].apply(removing_urls)
-            debug_row(data, "REMOVE_URL")
+            
 
             data['content'] = data['content'].apply(tokenization)
-            debug_row(data, "TOKENIZATION")
+            
 
             data['content'] = data['content'].apply(remove_stopwords)
-            debug_row(data, "REMOVE_STOPWORDS")
+            
 
             data['content'] = data['content'].apply(lemmatizer)
-            debug_row(data, "LEMMATIZER")
+            
 
             data['content'] = data['content'].apply(join_words)
-            debug_row(data, "JOIN_WORDS")
-
-            logger.info("🔍 DEBUGGING PIPELINE END")
-
-        # 🔥 DEBUG: AFTER preprocessing
-        logger.info("🔍 AFTER PREPROCESSING")
-
-        if not train_data.empty:
-            logger.info(f"Sample AFTER: {train_data['content'].iloc[0]}")
-        else:
-            logger.warning("⚠️ Train data is empty AFTER preprocessing")
-
-        # 🔥 DEBUG: empty rows count
-        empty_count = train_data['content'].astype(str).str.strip().eq('').sum()
-        logger.info(f"Empty rows after preprocessing: {empty_count}")
-
-        # 🔥 DEBUG: show few rows
-        logger.info(f"Top 3 processed rows: {train_data['content'].head(3).tolist()}")
+            
 
         data_path = os.path.join('data', 'interim')
         save_data(data_path, train_data, test_data)
