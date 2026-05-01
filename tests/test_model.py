@@ -65,8 +65,8 @@ class BaseTest(unittest.TestCase):
         # ---------------------------
         cls.test_data = pd.read_csv("data/interim/test_preprocessed.csv")
 
-        cls.text_col = cls.test_data.columns[0]
-        cls.target_col = cls.test_data.columns[-1]
+        cls.text_col = cls.test_data.columns[1]
+        cls.target_col = cls.test_data.columns[0]
 
     @staticmethod
     def get_latest_model_version(model_name, stage="Staging"):
