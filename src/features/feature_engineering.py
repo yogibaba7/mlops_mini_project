@@ -195,6 +195,6 @@ def main():
 
     except Exception as e:
         logger.error(f"❌ Feature engineering failed: {e}")
-        raise  # VERY IMPORTANT (CI me proper fail dikhane ke liye)
+        raise  
 if __name__ == "__main__":
     main()
