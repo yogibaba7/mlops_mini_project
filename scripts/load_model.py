@@ -7,6 +7,7 @@ import json
 import pickle
 import numpy as np
 import os
+import shutil
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,10 +36,10 @@ def LoadModel(ModelName:str,ModelStage:str)->mlflow.pyfunc:
     # prepare model uri
     model_uri = model_uri = f"models:/{ModelName}/{ModelStage}"
 
-    # load model 
-    model = mlflow.pyfunc.load_model(model_uri)
+    
+    local_path = mlflow.artifacts.download_artifacts(artifact_uri=model_uri)
 
-    return model
+    shutil.copytree(local_path, "API/Production_Model_artifacts/model", dirs_exist_ok=True)
 
 
 # load Vector
@@ -64,6 +65,28 @@ def LoadVector():
 
     return vectorizer
 
+def main():
+    # create model saving dir
+    dir = "API/Production_Model_artifacts"
+    os.makedirs(dir,exist_ok=True)
+    # load model
+    model = LoadModel("my_model","Production")
+    vector = LoadVector()
+
+    # save model and vector
+    # model_path = os.path.join(dir,"model.pkl")
+    vector_path = os.path.join(dir,"vector.pkl")
+
+
+    with open(vector_path,"wb") as f:
+        pickle.dump(vector,f)
+
+    print(f"model and vector saved to {dir}")
+
+
+
+if __name__=="__main__":
+    main()
 
 
 

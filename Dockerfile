@@ -4,14 +4,14 @@ FROM python:3.11-slim
 # workdir
 WORKDIR /app
 
-# copy
+# COPY
 COPY API/ ./API/
 
 # run
 RUN pip install -r API/requirements.txt
 
-# expose
+# expose port
 EXPOSE 8000
 
-# command
+# run FastAPI
 CMD ["uvicorn", "API.app:app", "--host", "0.0.0.0", "--port", "8000"]
