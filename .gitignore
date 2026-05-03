@@ -3,6 +3,7 @@ data
 models
 reports
 test_env_var.py
+Production_Model_artifacts
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -57,6 +57,24 @@ jobs:
           export PYTHONPATH=$PWD
           pytest tests/test_api_app.py tests/test_model_loading.py tests/test_preprocessing.py
 
+      - name: login to docker hub
+        if: success()
+        uses: docker/login-action@v2
+        with:
+          username: ${{secrets.DOCKER_HUB_USERNAME1}}
+          password: ${{secrets.DOCKER_HUB_ACESS_TOKEN1}}
+        
+      - name: build docker image
+        if: success()
+        run: |
+          docker build -t yogeshchouhan/emotion_analysis:v1.2 --build-arg DAGSHUB_PAT=${{secrets.DAGSHUB_PAT}} .
+
+      - name: push image to docker hub
+        if: success()
+        run: |
+          docker push ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v1.2
+
+          
 
           
 
