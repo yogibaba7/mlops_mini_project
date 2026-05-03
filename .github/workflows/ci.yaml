@@ -74,7 +74,7 @@ jobs:
       - name: build docker image
         if: success()
         run: |
-          docker build -t ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v1.1
+          docker build -t ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v1.1 .
         
       - name: push docker image to docker hub
         if: success()
