@@ -7,9 +7,9 @@ from pydantic import BaseModel,computed_field,Field
 from typing import List,Annotated
 
 from API.preprocessing_utils import PreprocessText
-from API.model_loading import LoadModel, LoadVector
-
-
+import pickle
+import mlflow
+import os
 
 class Schema(BaseModel):
     sentiment : Annotated[str,Field(...,description="Text of User")]
@@ -21,8 +21,14 @@ class Schema(BaseModel):
 
 # API 
 app = FastAPI()
-model = LoadModel("my_model","Production")
-vector = LoadVector()
+
+BASE_DIR = os.path.dirname(__file__)
+# laod model and vector
+model = mlflow.pyfunc.load_model(os.path.join(BASE_DIR, "Production_Model_artifacts/model"))
+
+with open(os.path.join(BASE_DIR, "Production_Model_artifacts/vector.pkl"),'rb') as f:
+    vector = pickle.load(f)
+
 
 
 data = "i'm yogesh chouhan i have lot of thing today i'm very happy and performing outstanding"
