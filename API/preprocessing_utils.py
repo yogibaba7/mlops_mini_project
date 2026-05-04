@@ -13,6 +13,7 @@ from nltk.tokenize import word_tokenize
 import logging
 import pickle
 
+
 # nltk.download('wordnet')
 # nltk.download('stopwords')
 
