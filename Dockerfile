@@ -10,6 +10,8 @@ COPY API/ ./API/
 # run
 RUN pip install -r API/requirements.txt
 
+RUN python -m nltk.downloader stopwords wordnet
+
 # expose port
 EXPOSE 8000
 

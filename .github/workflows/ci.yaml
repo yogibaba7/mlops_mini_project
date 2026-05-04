@@ -62,6 +62,7 @@ jobs:
         
         run: |
           export PYTHONPATH=$PWD
+          python -m nltk.downloader stopwords wordnet
           pytest tests/test_api_app.py tests/test_preprocessing.py
       
       - name: login to dockerhub
@@ -92,7 +93,7 @@ jobs:
             docker pull ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v2.1
             docker stop my-app || true
             docker rm my-app || true
-            docker run -p 80:8000 --name my-app ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v2.1
+            docker run -d -p 80:8000 --name my-app ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v2.1
 
 
 

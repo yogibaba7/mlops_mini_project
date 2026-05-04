@@ -13,8 +13,8 @@ from nltk.tokenize import word_tokenize
 import logging
 import pickle
 
-nltk.download('wordnet')
-nltk.download('stopwords')
+# nltk.download('wordnet')
+# nltk.download('stopwords')
 
 
 # convert to lower case
