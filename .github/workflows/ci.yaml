@@ -88,6 +88,30 @@ jobs:
         run: | 
           docker push 128529977235.dkr.ecr.eu-north-1.amazonaws.com/emotion_analysis_ecr:v1.2
       
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # set AWS credentials (IAM USER)
+            export AWS_ACCESS_KEY_ID=${{ secrets.EC2_ACESS_KEY }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.EC2_SECRET_KEY }}
+            export AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }}
+
+            # login to ECR
+            aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 128529977235.dkr.ecr.eu-north-1.amazonaws.com
+
+            # pull image
+            docker push 128529977235.dkr.ecr.eu-north-1.amazonaws.com/emotion_analysis_ecr:v1.2
+
+            # restart container
+            docker stop my-app || true
+            docker rm my-app || true
+            docker run -d -p 80:8000 --name my-app 128529977235.dkr.ecr.eu-north-1.amazonaws.com/emotion_analysis_ecr:v1.2
+
+          
       # - name: login to dockerhub
       #   if: success()
       #   uses: docker/login-action@v2
