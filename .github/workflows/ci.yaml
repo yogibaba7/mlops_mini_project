@@ -48,13 +48,6 @@ jobs:
 
         run: |
           python scripts/model_promotion.py
-
-      - name: model load from registry
-        if: success()
-        env:
-          DAGSHUB_PAT: ${{secrets.DAGSHUB_PAT}}
-        run: |
-          python scripts/load_model.py
         
       - name: Run Api Test
         env:
