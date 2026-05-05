@@ -65,10 +65,15 @@ jobs:
           python -m nltk.downloader stopwords wordnet
           pytest tests/test_api_app.py tests/test_preprocessing.py
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.EC2_ACESS_KEY }}
+          aws-secret-access-key: ${{ secrets.EC2_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Login to aws ECR
         run: |
-          aws configure set aws_acess_key_id ${{secrets.EC2_SECRET_KEY}}
-          aws configure set aws_secret_key_id ${{secrets.EC2_ACESS_KEY}}
           aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 128529977235.dkr.ecr.eu-north-1.amazonaws.com
       
       - name: Build docker image
@@ -79,8 +84,8 @@ jobs:
         run: |
           docker tag emotion_analysis_ecr:latest 128529977235.dkr.ecr.eu-north-1.amazonaws.com/emotion_analysis_ecr:v1.2
       
-      - name: 
-        run: |
+      - name: push image to ECR
+        run: | 
           docker push 128529977235.dkr.ecr.eu-north-1.amazonaws.com/emotion_analysis_ecr:v1.2
       
       # - name: login to dockerhub
@@ -100,18 +105,18 @@ jobs:
       #   run: |
       #     docker push ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v2.1
 
-      - name: Deploy to EC2
-        if: success()
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{secrets.EC2_HOST}}
-          username: ${{secrets.EC2_USER}}
-          key: ${{secrets.EC2_SSH_KEY}}
-          script: |
-            docker pull ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v2.1
-            docker stop my-app || true
-            docker rm my-app || true
-            docker run -d -p 80:8000 --name my-app ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v2.1
+      # - name: Deploy to EC2
+      #   if: success()
+      #   uses: appleboy/ssh-action@v0.1.5
+      #   with:
+      #     host: ${{secrets.EC2_HOST}}
+      #     username: ${{secrets.EC2_USER}}
+      #     key: ${{secrets.EC2_SSH_KEY}}
+      #     script: |
+      #       docker pull ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v2.1
+      #       docker stop my-app || true
+      #       docker rm my-app || true
+      #       docker run -d -p 80:8000 --name my-app ${{secrets.DOCKER_HUB_USERNAME1}}/emotion_analysis:v2.1
 
 
 
